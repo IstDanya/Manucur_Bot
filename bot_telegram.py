@@ -1,12 +1,14 @@
 from aiogram import Bot, types, Dispatcher
 from aiogram.utils import executor
 
-import os 
+import os, string, json
 
 # entry point
 bot = Bot(token=os.environ['TOKEN'])
 dp = Dispatcher(bot)
 
+async def on_startup(_):
+	print('Бот вышел в онлайн')
 
 """***************************USER PART***************************** """
 @dp.message_handler(commands=['start', 'help'])
@@ -33,12 +35,15 @@ async def work_place(message : types.Message):
 
 @dp.message_handler()
 async def echo_send(message : types.Message):
-	if message.text == "hi":
-		await message.answer("Hello, Ich heise ManucurBot")
+	if {i.lower().translate(str.maketrans('', '', string.punctuation)) for i in message.text.split(' ')}\
+		.intersection(set(json.load(open('filthy_language.json')))) != set():
+		await message.reply('Shut up clown!\n*cenzure*')
+		await message.delete()
+
 	
 	
 
 
 
 
-executor.start_polling(dp, skip_updates=True)
+executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
